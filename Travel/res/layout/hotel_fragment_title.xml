@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="48.0dip"
+    android:background="@drawable/hotel_title_background" >
+
+    <!-- <Button
+        android:id="@+id/hotel_title_left_btn"
+        android:layout_width="48.0dip"
+        android:layout_height="48.0dip"
+        android:layout_alignParentLeft="true"
+        android:layout_centerVertical="true"
+        android:layout_marginLeft="0.0dip"
+        android:background="@drawable/side_bar_button"
+        android:visibility="invisible" />
+
+    <Button
+        android:id="@+id/hotel_title_left_btn2"
+        android:layout_width="48.0dip"
+        android:layout_height="48.0dip"
+        android:layout_alignParentLeft="true"
+        android:layout_centerVertical="true"
+        android:layout_marginLeft="0.0dip"
+        android:background="@drawable/back_button"
+        android:visibility="invisible" /> -->
+
+    <TextView
+        android:id="@+id/hotel_title_center_tv"
+        android:layout_width="wrap_content"
+        android:layout_height="48.0dip"
+        android:layout_centerInParent="true"
+        android:gravity="center"
+        android:text="住哪儿"
+        android:textColor="#ffffffff"
+        android:textSize="22.0sp" />
+
+    <ImageView
+        android:id="@+id/selectCityImage"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignRight="@id/hotel_title_center_tv"
+        android:layout_centerVertical="true"
+        android:layout_marginRight="-12.0dip"
+        android:src="@drawable/hotel_city_select"
+        android:visibility="invisible" />
+
+    <Button
+        android:id="@+id/hotel_title_right_btn"
+        android:layout_width="48.0dip"
+        android:layout_height="48.0dip"
+        android:layout_alignParentRight="true"
+        android:layout_centerVertical="true"
+        android:layout_marginRight="0.0dip"
+        android:background="@drawable/service"
+        android:visibility="invisible" />
+
+    <!-- <TextView
+        android:id="@+id/hotel_title_right_tv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_centerVertical="true"
+        android:layout_marginRight="12.0dip"
+        android:text="保存"
+        android:textColor="@color/white"
+        android:textSize="18.0sp"
+        android:visibility="invisible" />
+
+    <Button
+        android:id="@+id/hotel_title_right_btn2"
+        android:layout_width="30.0dip"
+        android:layout_height="30.0dip"
+        android:layout_alignParentRight="true"
+        android:layout_centerVertical="true"
+        android:layout_marginRight="12.0dip"
+        android:background="@drawable/hotel_map_btn"
+        android:visibility="invisible" /> -->
+
+</RelativeLayout>
