@@ -1,0 +1,86 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:orientation="vertical" >
+
+    <com.baidu.mapapi.map.MapView
+        android:id="@+id/bmapsView"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:clickable="true" />
+
+    <ImageButton
+        android:id="@+id/location_button"
+        android:layout_width="32.0dip"
+        android:layout_height="32.0dip"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentLeft="true"
+        android:layout_marginBottom="12.0dip"
+        android:layout_marginLeft="12.0dip"
+        android:background="@drawable/tap_to_locate" />
+
+    <ImageButton
+        android:id="@+id/zoom_out"
+        android:layout_width="32.0dip"
+        android:layout_height="32.0dip"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:layout_marginBottom="12.0dip"
+        android:layout_marginRight="12.0dip"
+        android:background="@drawable/zoom_out" />
+
+    <ImageView
+        android:layout_width="32.0dip"
+        android:layout_height="0.5dip"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:layout_marginBottom="44.0dip"
+        android:layout_marginRight="12.0dip"
+        android:background="#ffc6c4c3" />
+
+    <ImageButton
+        android:id="@+id/zoom_in"
+        android:layout_width="32.0dip"
+        android:layout_height="32.0dip"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:layout_marginBottom="44.5dip"
+        android:layout_marginRight="12.0dip"
+        android:background="@drawable/zoom_in" />
+
+    <ImageView
+        android:id="@+id/record_button"
+        android:layout_width="119.0dip"
+        android:layout_height="108.0dip"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:background="@drawable/hotel_record_button" />
+
+    <ImageView
+        android:id="@+id/me"
+        android:layout_width="11.0dip"
+        android:layout_height="27.0dip"
+        android:layout_centerInParent="true"
+        android:background="@drawable/me" />
+
+    <!--
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:background="#ffffff"
+        android:orientation="horizontal" >
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="fill_parent"
+            android:text="测试1" />
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="fill_parent"
+            android:text="测试2" />
+    </LinearLayout>
+    -->
+
+</RelativeLayout>

@@ -1,277 +1,168 @@
 package demo.travel.views;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import android.graphics.Bitmap;
-import android.graphics.Point;
-import android.graphics.drawable.BitmapDrawable;
+import android.content.res.Configuration;
 import android.os.Bundle;
+import android.support.v4.app.ActionBarDrawerToggle;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.view.GravityCompat;
+import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarActivity;
-import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
-import android.widget.TextView;
-
-import com.baidu.location.BDLocation;
-import com.baidu.location.BDLocationListener;
-import com.baidu.location.LocationClient;
-import com.baidu.location.LocationClientOption;
-import com.baidu.mapapi.BMapManager;
-import com.baidu.mapapi.map.ItemizedOverlay;
-import com.baidu.mapapi.map.MKMapStatus;
-import com.baidu.mapapi.map.MKMapStatusChangeListener;
-import com.baidu.mapapi.map.MKMapViewListener;
-import com.baidu.mapapi.map.MapController;
-import com.baidu.mapapi.map.MapPoi;
-import com.baidu.mapapi.map.MapView;
-import com.baidu.mapapi.map.OverlayItem;
-import com.baidu.platform.comapi.basestruct.GeoPoint;
-import com.loopj.android.http.AsyncHttpResponseHandler;
-
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.ListView;
 import demo.travel.R;
-import demo.travel.net.HotelDao;
 
 public class MainActivity extends ActionBarActivity {
 	private String TAG = "HOTEL_MAIN";
-	private ItemizedOverlay myMarkerOverLay;
-	private GeoPoint targetGeo;
-	private Boolean isFirstLoc = true;
-	private HotelDao hotelDao = null;
+	
+    private DrawerLayout mDrawerLayout;
+    private ListView mDrawerList;
+    private ActionBarDrawerToggle mDrawerToggle;
 
-	// 百度地图SDK
-	private BMapManager mBMapMan = null;
-	private MapView mMapView = null;
-	private MapController mMapController = null;
+    private CharSequence mDrawerTitle;
+    private CharSequence mTitle;
+    private String[] mDrawerItems;
 
-	// 百度定位SDK
-	private LocationClient locationClient = null;
-	private static final int UPDATE_TIME = 5000;
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
 
-	private void addItemToMyOverLay(double paramDouble1, double paramDouble2,
-			String paramString, Object paramObject) {
-		OverlayItem localOverlayItem = new OverlayItem(new GeoPoint(
-				(int) (paramDouble1 * 1E6), (int) (paramDouble2 * 1E6)),
-				paramString, "");
-		localOverlayItem.setMarker(new BitmapDrawable(getResources(),
-				getViewBitmap(getView(paramString))));
-		this.myMarkerOverLay.addItem(localOverlayItem);
-	}
+        mTitle = mDrawerTitle = getTitle();
+        mDrawerItems = getResources().getStringArray(R.array.drawer_item_array);
+        mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
+        mDrawerList = (ListView) findViewById(R.id.left_drawer);
 
-	public static Bitmap getViewBitmap(View paramView) {
-		paramView.measure(View.MeasureSpec.makeMeasureSpec(0, 0),
-				View.MeasureSpec.makeMeasureSpec(0, 0));
-		paramView.layout(0, 0, paramView.getMeasuredWidth(),
-				paramView.getMeasuredHeight());
-		paramView.buildDrawingCache();
-		return paramView.getDrawingCache();
-	}
+        // set a custom shadow that overlays the main content when the drawer opens
+        mDrawerLayout.setDrawerShadow(R.drawable.drawer_shadow, GravityCompat.START);
+        // set up the drawer's list view with items and click listener
+        mDrawerList.setAdapter(new ArrayAdapter<String>(this,
+                R.layout.drawer_list_item, mDrawerItems));
+        mDrawerList.setOnItemClickListener(new DrawerItemClickListener());
 
-	private View getView(String paramString) {
-		View localView = getLayoutInflater().inflate(R.layout.marker, null);
-		TextView localTextView = (TextView) localView
-				.findViewById(R.id.hotel_brand);
-		String str = paramString;
-		if (paramString.length() >= 6)
-			str = paramString.substring(0, 6);
-		localTextView.setText(str);
-		localTextView.setTextColor(-1);
-		return localView;
-	}
+        // enable ActionBar app icon to behave as action to toggle nav drawer
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setHomeButtonEnabled(true);
 
-	private void searchTargetAroundHotel() {
-		Double latitude = (double) targetGeo.getLatitudeE6() / 1E6;
-		Double longtitude = (double) targetGeo.getLongitudeE6() / 1E6;
-		searchAroundHotel(latitude, longtitude);
-	}
+        // ActionBarDrawerToggle ties together the the proper interactions
+        // between the sliding drawer and the action bar app icon
+        mDrawerToggle = new ActionBarDrawerToggle(
+                this,                  /* host Activity */
+                mDrawerLayout,         /* DrawerLayout object */
+                R.drawable.ic_drawer,  /* nav drawer image to replace 'Up' caret */
+                R.string.drawer_open,  /* "open drawer" description for accessibility */
+                R.string.drawer_close  /* "close drawer" description for accessibility */
+                ) {
+            public void onDrawerClosed(View view) {
+                getSupportActionBar().setTitle(mTitle);
+                supportInvalidateOptionsMenu(); // creates call to onPrepareOptionsMenu()
+            }
 
-	private void searchAroundHotel(Double latitude, Double longtitude) {
-		hotelDao.getAroundHotel(latitude, longtitude,
-				new AsyncHttpResponseHandler() {
+            public void onDrawerOpened(View drawerView) {
+                getSupportActionBar().setTitle(mDrawerTitle);
+                supportInvalidateOptionsMenu(); // creates call to onPrepareOptionsMenu()
+            }
+        };
+        mDrawerLayout.setDrawerListener(mDrawerToggle);
 
-					@Override
-					public void onSuccess(String response) {
-						myMarkerOverLay.removeAll();
-						try {
-							JSONArray ja = new JSONArray(response);
-							for (int i = 0; i < ja.length() && i < 20; i++) {
-								JSONObject jo = ja.getJSONObject(i);
-								addItemToMyOverLay(jo.getDouble("latitude"),
-										jo.getDouble("longtitude"),
-										jo.getString("name"), null);
-							}
-							mMapView.refresh();
-						} catch (JSONException e) {
-							e.printStackTrace();
-						}
-					}
+        if (savedInstanceState == null) {
+            selectItem(0);
+        }
+    }
 
-					@Override
-					public void onStart() {
-						super.onStart();
-						Log.d(TAG, "Start searchAroundHotel");
-					}
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.main, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
 
-					@Override
-					public void onFinish() {
-						super.onFinish();
-						Log.d(TAG, "Finish searchAroundHotel");
-					}
+    /* Called whenever we call supportInvalidateOptionsMenu() */
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        // If the nav drawer is open, hide action items related to the content view
+        boolean drawerOpen = mDrawerLayout.isDrawerOpen(mDrawerList);
+        return super.onPrepareOptionsMenu(menu);
+    }
 
-				});
-	}
-
-	@Override
-	public void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-
-		mBMapMan = new BMapManager(getApplication());
-		mBMapMan.init("y5qvr6Apv4vC3t9SzlteXARS", null);
-
-		// 注意：请在试用setContentView前初始化BMapManager对象，否则会报错
-		setContentView(R.layout.activity_main);
-
-		mMapView = (MapView) findViewById(R.id.bmapsView);
-
-		// 设置启用内置的缩放控件
-		mMapView.setBuiltInZoomControls(true);
-
-		mMapController = mMapView.getController();
-
-		hotelDao = new HotelDao();
-
-		this.myMarkerOverLay = new ItemizedOverlay(getResources().getDrawable(
-				R.drawable.marker), mMapView);
-		mMapView.getOverlays().clear();
-		mMapView.getOverlays().add(this.myMarkerOverLay);
-
-		MKMapViewListener mapViewListener = new MKMapViewListener() {
-
-			@Override
-			public void onMapMoveFinish() {
-				// 此处可以实现地图移动完成事件的状态监听
-				searchTargetAroundHotel();
-			}
-
-			@Override
-			public void onClickMapPoi(MapPoi arg0) {
-				// 此处可实现点击到地图可点标注时的监听
-			}
-
-			@Override
-			public void onGetCurrentMap(Bitmap b) {
-				// 用MapView.getCurrentMap()发起截图后，在此处理截图结果.
-			}
-
-			@Override
-			public void onMapAnimationFinish() {
-				/**
-				 * 地图完成带动画的操作（如: animationTo()）后，此回调被触发
-				 */
-			}
-
-			@Override
-			public void onMapLoadFinish() {
-				// 地图初始化完成时，此回调被触发.
-			}
-		};
-		mMapView.regMapViewListener(mBMapMan, mapViewListener); // 注册监听
-
-		// 实现对地图状态改变的处理
-		MKMapStatusChangeListener listener = new MKMapStatusChangeListener() {
-			public void onMapStatusChange(MKMapStatus mapStatus) {
-				float zoom = mapStatus.zoom; // 地图缩放等级
-				int overlooking = mapStatus.overlooking; // 地图俯视角度
-				int rotate = mapStatus.rotate; // 地图旋转角度
-				targetGeo = mapStatus.targetGeo; // 中心点的地理坐标
-				Point targetScreen = mapStatus.targetScreen; // 中心点的屏幕坐标
-				// TODO add your process
-
-			}
-		};
-		mMapView.regMapStatusChangeListener(listener); // 注册监听
-
-		locationClient = new LocationClient(this);
-		// 设置定位条件
-		LocationClientOption option = new LocationClientOption();
-		option.setOpenGps(true); // 是否打开GPS
-		option.setCoorType("bd09ll"); // 设置返回值的坐标类型。
-		// option.setCoorType("gcj02"); // 设置返回值的坐标类型。
-		option.setPriority(LocationClientOption.NetWorkFirst); // 设置定位优先级
-		option.setProdName("LocationDemo"); // 设置产品线名称。强烈建议您使用自定义的产品线名称，方便我们以后为您提供更高效准确的定位服务。
-		option.setScanSpan(UPDATE_TIME); // 设置定时定位的时间间隔。单位毫秒
-		locationClient.setLocOption(option);
-
-		// 注册位置监听器
-		locationClient.registerLocationListener(new BDLocationListener() {
-
-			@Override
-			public void onReceiveLocation(BDLocation location) {
-				if (location == null) {
-					return;
-				}
-				Double latitude = location.getLatitude();
-				Double longtitude = location.getLongitude();
-
-				mMapController = mMapView.getController();
-				GeoPoint point = new GeoPoint((int) (latitude * 1E6),
-						(int) (longtitude * 1E6));
-
-				targetGeo = point;
-				if (MainActivity.this.isFirstLoc.booleanValue()) {
-					MainActivity.this.mMapController.setZoom(14.0F);
-					MainActivity.this.mMapController.animateTo(point);
-					searchTargetAroundHotel();
-				}
-				MainActivity.this.isFirstLoc = Boolean.valueOf(false);
-			}
-
-			@Override
-			public void onReceivePoi(BDLocation location) {
-			}
-		});
-
-		if (locationClient == null) {
-			return;
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+         // The action bar home/up action should open or close the drawer.
+         // ActionBarDrawerToggle will take care of this.
+        if (mDrawerToggle.onOptionsItemSelected(item)) {
+            return true;
+        }
+        // Handle action buttons
+		switch (item.getItemId()) {
+//		case R.id.action_websearch:
+//			// create intent to perform web search for this planet
+//			Intent intent = new Intent(Intent.ACTION_WEB_SEARCH);
+//			intent.putExtra(SearchManager.QUERY, getSupportActionBar().getTitle());
+//			// catch event that there's no activity to handle intent
+//			if (intent.resolveActivity(getPackageManager()) != null) {
+//				startActivity(intent);
+//			} else {
+//				Toast.makeText(this, R.string.app_not_available,
+//						Toast.LENGTH_LONG).show();
+//			}
+//			return true;
+		default:
+			return super.onOptionsItemSelected(item);
 		}
-		if (locationClient.isStarted()) {
-			locationClient.stop();
-		} else {
-			locationClient.start();
-			locationClient.requestLocation();
-		}
-	}
+    }
 
-	@Override
-	protected void onDestroy() {
-		mMapView.destroy();
-		if (mBMapMan != null) {
-			mBMapMan.destroy();
-			mBMapMan = null;
-		}
-		super.onDestroy();
+    /* The click listner for ListView in the navigation drawer */
+    private class DrawerItemClickListener implements ListView.OnItemClickListener {
+        @Override
+        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+            selectItem(position);
+        }
+    }
 
-		if (locationClient != null && locationClient.isStarted()) {
-			locationClient.stop();
-			locationClient = null;
-		}
-	}
+    private void selectItem(int position) {
+        // update the main content by replacing fragments
 
-	@Override
-	protected void onPause() {
-		mMapView.onPause();
-		if (mBMapMan != null) {
-			mBMapMan.stop();
-		}
-		super.onPause();
-	}
+        if (position == 0) {
+        	Fragment fragment = new MapFragment();
+        	 FragmentManager fragmentManager = getSupportFragmentManager();
+             fragmentManager.beginTransaction().replace(R.id.content_frame, fragment).commit();
+        }
+        
+       
+        // update selected item and title, then close the drawer
+        mDrawerList.setItemChecked(position, true);
+        setTitle(mDrawerItems[position]);
+        mDrawerLayout.closeDrawer(mDrawerList);
+    }
 
-	@Override
-	protected void onResume() {
-		mMapView.onResume();
-		if (mBMapMan != null) {
-			mBMapMan.start();
-		}
-		super.onResume();
-	}
+    @Override
+    public void setTitle(CharSequence title) {
+        mTitle = title;
+        getSupportActionBar().setTitle(mTitle);
+    }
+
+    /**
+     * When using the ActionBarDrawerToggle, you must call it during
+     * onPostCreate() and onConfigurationChanged()...
+     */
+
+    @Override
+    protected void onPostCreate(Bundle savedInstanceState) {
+        super.onPostCreate(savedInstanceState);
+        // Sync the toggle state after onRestoreInstanceState has occurred.
+        mDrawerToggle.syncState();
+    }
+
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        // Pass any configuration change to the drawer toggls
+        mDrawerToggle.onConfigurationChanged(newConfig);
+    }
+
 }
