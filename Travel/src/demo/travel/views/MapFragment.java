@@ -4,6 +4,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
@@ -13,6 +14,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
@@ -59,7 +61,7 @@ public class MapFragment extends Fragment {
 	private static final int UPDATE_TIME = 1000;
 
 	private void initMap() {
-		this.mMapView = (MapView) this.mRootView.findViewById(R.id.bmapsView);
+		this.mMapView = (MapView) this.mRootView.findViewById(R.id.baidu_map_view);
 		this.mMapView.setBuiltInZoomControls(false);
 		this.mMapController = this.mMapView.getController();
 		this.mMapController.setZoom(14.0F);
@@ -111,6 +113,10 @@ public class MapFragment extends Fragment {
 		ImageButton zoomOutButton = ((ImageButton) mRootView
 				.findViewById(R.id.zoom_out));
 		zoomOutButton.setOnClickListener(clickListener);
+		
+		Button gotoTextOrder =  ((Button) mRootView
+				.findViewById(R.id.goto_text_order));
+		gotoTextOrder.setOnClickListener(clickListener);
 	}
 
 	private void addItemToMyOverLay(double paramDouble1, double paramDouble2,
@@ -321,6 +327,10 @@ public class MapFragment extends Fragment {
 				return;
 			case R.id.zoom_out:
 				MapFragment.this.mMapController.zoomOut();
+				return;
+			case R.id.goto_text_order:
+//				Intent intent = new Intent(MapFragment.this.getActivity(), TextOrderActivity.class);
+//				MapFragment.this.getActivity().startActivity(intent);
 				return;
 			}
 		}

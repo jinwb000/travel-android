@@ -6,6 +6,8 @@
     <string name="action_settings">设置</string>
     <string name="action_help">帮助</string>
 
+    <string name="goto_text_order">继续</string>
+    
     <string-array name="drawer_item_array">
         <item>订酒店</item>
         <item>我的订单</item>
@@ -16,4 +18,5 @@
     <string name="drawer_close">Close navigation drawer</string>
     <string name="action_websearch">Web search</string>
 
+    
 </resources>
